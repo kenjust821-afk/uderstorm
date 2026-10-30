@@ -1,10 +1,7 @@
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
-import db, { getReviews, getSettings } from '@/lib/db';
 
-export default async function AdminLoginPage() {
-  const settings = await getSettings();
-
+export default function AdminLoginPage() {
   return (
     <>
       <SiteHeader />
@@ -29,51 +26,3 @@ export default async function AdminLoginPage() {
     </>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

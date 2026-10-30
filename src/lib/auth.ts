@@ -1,57 +1,44 @@
-import { PrismaClient } from '@prisma/client';
+import { cookies } from 'next/headers';
+import { NextRequest } from 'next/server';
+import crypto from 'crypto';
 
-const prisma = new PrismaClient();
+const SECRET = process.env.JWT_SECRET || 'dunderthings-secret';
 
-export const db = prisma;
-
-export async function getSettings() {
-  const settings = await prisma.setting.findMany();
-  return Object.fromEntries(settings.map((item) => [item.key, item.value]));
+export function signSession(username: string) {
+  const payload = JSON.stringify({ username, exp: Date.now() + 86400000 });
+  const signature = crypto.createHmac('sha256', SECRET).update(payload).digest('base64url');
+  return `${Buffer.from(payload).toString('base64url')}.${signature}`;
 }
 
-export async function getCategories() {
-  return prisma.category.findMany({ orderBy: { name: 'asc' } });
+export function verifySession(token?: string) {
+  if (!token) return null;
+
+  const [payloadBase64, signature] = token.split('.');
+  if (!payloadBase64 || !signature) return null;
+
+  const expected = crypto
+    .createHmac('sha256', SECRET)
+    .update(Buffer.from(payloadBase64, 'base64url').toString('utf8'))
+    .digest('base64url');
+
+  if (expected !== signature) return null;
+
+  try {
+    const payload = JSON.parse(Buffer.from(payloadBase64, 'base64url').toString('utf8')) as { username: string; exp: number };
+    if (payload.exp < Date.now()) return null;
+    return { username: payload.username };
+  } catch {
+    return null;
+  }
 }
 
-export async function getProducts() {
-  return prisma.product.findMany({
-    where: { active: true },
-    include: { category: true },
-    orderBy: { createdAt: 'desc' },
-  });
+export function verifySessionRequest(req: NextRequest) {
+  const token = req.cookies.get('dunderthings_admin')?.value;
+  return verifySession(token);
 }
 
-export async function getReviews() {
-  return prisma.review.findMany({ where: { approved: true }, orderBy: { createdAt: 'desc' } });
+export async function getCurrentUser() {
+  const cookieStore = cookies();
+  const token = cookieStore.get('dunderthings_admin')?.value;
+  return verifySession(token);
 }
-
-export async function getProductBySlug(slug: string) {
-  const product = await prisma.product.findUnique({
-    where: { slug },
-    include: { category: true },
-  });
-  if (!product) return null;
-  return {
-    ...product,
-    images: typeof product.images === 'string' ? JSON.parse(product.images || '[]') : product.images,
-    sizes: typeof product.sizes === 'string' ? JSON.parse(product.sizes || '[]') : product.sizes,
-    colors: typeof product.colors === 'string' ? JSON.parse(product.colors || '[]') : product.colors,
-  };
-}
-
-export default prisma;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

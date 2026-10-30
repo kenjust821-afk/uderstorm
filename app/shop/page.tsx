@@ -1,21 +1,26 @@
-import db, { getCategories, getProducts, getSettings } from '@/lib/db';
 import Link from 'next/link';
 import Image from 'next/image';
-import { notFound } from 'next/navigation';
-import { ProductCard } from '@/components/product-card';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
+import { ProductCard } from '@/components/product-card';
+import { db, getCategories, getSettings } from '@/lib/db';
 
-export default async function ShopPage({ searchParams }: { searchParams: { category?: string; size?: string; color?: string; minPrice?: string; maxPrice?: string; newArrival?: string; bestSeller?: string; q?: string; } }) {
+export default async function ShopPage({
+  searchParams,
+}: {
+  searchParams: { category?: string; size?: string; color?: string; minPrice?: string; maxPrice?: string; newArrival?: string; bestSeller?: string; q?: string };
+}) {
   const settings = await getSettings();
   const categories = await getCategories();
 
   const filters: any = { active: true };
   if (searchParams.category) filters.category = { slug: searchParams.category };
-  if (searchParams.q) filters.OR = [
-    { name: { contains: searchParams.q } },
-    { description: { contains: searchParams.q } },
-  ];
+  if (searchParams.q) {
+    filters.OR = [
+      { name: { contains: searchParams.q } },
+      { description: { contains: searchParams.q } },
+    ];
+  }
   if (searchParams.newArrival === 'true') filters.newArrival = true;
   if (searchParams.bestSeller === 'true') filters.bestSeller = true;
 
@@ -25,20 +30,13 @@ export default async function ShopPage({ searchParams }: { searchParams: { categ
     orderBy: { createdAt: 'desc' },
   });
 
-  const filteredProducts = products.filter((product) => {
-    let ok = true;
+  const visibleProducts = products.filter((product) => {
     const min = Number(searchParams.minPrice || 0);
     const max = Number(searchParams.maxPrice || Number.MAX_SAFE_INTEGER);
-    if (product.price < min || product.price > max) ok = false;
-    if (searchParams.size) {
-      const sizes = JSON.parse(product.sizes || '[]');
-      if (!sizes.includes(searchParams.size)) ok = false;
-    }
-    if (searchParams.color) {
-      const colors = JSON.parse(product.colors || '[]');
-      if (!colors.map((item: string) => item.toLowerCase()).includes(searchParams.color.toLowerCase())) ok = false;
-    }
-    return ok;
+    const hasPrice = product.price >= min && product.price <= max;
+    const hasSize = !searchParams.size || JSON.parse(product.sizes || '[]').includes(searchParams.size);
+    const hasColor = !searchParams.color || JSON.parse(product.colors || '[]').map((value: string) => value.toLowerCase()).includes(searchParams.color.toLowerCase());
+    return hasPrice && hasSize && hasColor;
   });
 
   return (
@@ -103,12 +101,12 @@ export default async function ShopPage({ searchParams }: { searchParams: { categ
 
             <div>
               <div className="mb-6 flex items-center justify-between">
-                <p className="text-sm text-[#5e4a48]">{filteredProducts.length} products available</p>
+                <p className="text-sm text-[#5e4a48]">{visibleProducts.length} products available</p>
               </div>
               <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                {filteredProducts.length > 0 ? filteredProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                )) : (
+                {visibleProducts.length > 0 ? (
+                  visibleProducts.map((product) => <ProductCard key={product.id} product={product} />)
+                ) : (
                   <div className="col-span-full rounded-[2rem] border border-dashed border-[#e7d7d2] bg-[#fffaf9] p-10 text-center text-[#5e4a48]">
                     No products match your filters.
                   </div>
@@ -122,76 +120,3 @@ export default async function ShopPage({ searchParams }: { searchParams: { categ
     </>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

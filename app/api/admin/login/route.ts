@@ -4,14 +4,21 @@ import { db } from '@/lib/db';
 import { signSession, verifySessionRequest } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
-  const { username, password } = await req.json();
+  const formData = await req.formData();
+  const username = String(formData.get('username') || '');
+  const password = String(formData.get('password') || '');
+
   const user = await db.adminUser.findUnique({ where: { username } });
-  if (!user) return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+  if (!user) {
+    return NextResponse.redirect(new URL('/admin/login?error=1', req.url));
+  }
 
   const valid = await compare(password, user.password);
-  if (!valid) return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+  if (!valid) {
+    return NextResponse.redirect(new URL('/admin/login?error=1', req.url));
+  }
 
-  const response = NextResponse.json({ ok: true });
+  const response = NextResponse.redirect(new URL('/admin', req.url));
   response.cookies.set('dunderthings_admin', signSession(username), {
     httpOnly: true,
     sameSite: 'lax',
@@ -19,15 +26,11 @@ export async function POST(req: NextRequest) {
     path: '/',
     maxAge: 60 * 60 * 24,
   });
+
   return response;
 }
 
 export async function GET(req: NextRequest) {
   const session = verifySessionRequest(req);
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  return NextResponse.json({ ok: true, user: session.username });
+  return NextResponse.json({ ok: !!session, user: session?.username || null });
 }
-
-
-
-

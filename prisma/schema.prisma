@@ -32,27 +32,27 @@ model Category {
 }
 
 model Product {
-  id              String   @id @default(cuid())
-  name            String
-  slug            String   @unique
-  description     String
-  price           Float
-  categoryId      String
-  category        Category  @relation(fields: [categoryId], references: [id])
-  images          String
-  sizes           String
-  colors          String
-  stock           Int      @default(0)
-  stockByVariant  String   @default("{}")
-  featured        Boolean  @default(false)
-  newArrival      Boolean  @default(false)
-  bestSeller      Boolean  @default(false)
-  soldOut         Boolean  @default(false)
-  active          Boolean  @default(true)
-  rating          Float    @default(0)
-  reviewCount     Int      @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String   @id @default(cuid())
+  name           String
+  slug           String   @unique
+  description    String
+  price          Float
+  categoryId     String
+  category       Category @relation(fields: [categoryId], references: [id])
+  images         String
+  sizes          String
+  colors         String
+  stock          Int      @default(0)
+  stockByVariant String   @default("{}")
+  featured       Boolean  @default(false)
+  newArrival     Boolean  @default(false)
+  bestSeller     Boolean  @default(false)
+  soldOut        Boolean  @default(false)
+  active         Boolean  @default(true)
+  rating         Float    @default(0)
+  reviewCount    Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 model Order {

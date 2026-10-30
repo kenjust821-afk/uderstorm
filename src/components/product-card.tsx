@@ -1,119 +1,31 @@
 import Link from 'next/link';
+import Image from 'next/image';
+import { formatNaira } from '@/lib/format';
 
-export function SiteFooter() {
+export function ProductCard({ product }: { product: any }) {
+  const images = Array.isArray(product.images) ? product.images : JSON.parse(product.images || '[]');
+
   return (
-    <footer className="border-t border-[#f0e5e2] bg-[#fffdfb]">
-      <div className="container grid gap-10 py-12 md:grid-cols-3">
-        <div>
-          <p className="text-lg font-black uppercase tracking-[0.18em] text-[#1d1918]">D UNDERTHINGS</p>
-          <p className="mt-4 max-w-sm text-[#5b4947]">Premium intimate essentials created to help you feel beautiful, confident, and completely yourself.</p>
-        </div>
-        <div>
-          <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-[#876c69]">Quick links</h3>
-          <div className="mt-4 space-y-2 text-[#432f2f]">
-            <Link href="/shop" className="block">Shop</Link>
-            <Link href="/about" className="block">About Us</Link>
-            <Link href="/contact" className="block">Contact</Link>
-          </div>
-        </div>
-        <div>
-          <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-[#876c69]">Contact</h3>
-          <div className="mt-4 space-y-2 text-[#432f2f]">
-            <p>hello@dunderthings.com</p>
-            <p>+2348123456789</p>
-            <p>12 Victoria Island, Lagos</p>
-          </div>
+    <Link href={`/products/${product.slug}`} className="group rounded-[2rem] border border-[#f0e5e3] bg-white p-3 shadow-soft transition hover:-translate-y-1">
+      <div className="overflow-hidden rounded-[1.5rem]">
+        <Image
+          src={images[0] || 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80'}
+          alt={product.name}
+          width={700}
+          height={800}
+          className="h-72 w-full rounded-[1.25rem] object-cover transition duration-500 group-hover:scale-105"
+        />
+      </div>
+      <div className="p-3">
+        <p className="mt-3 text-xs font-semibold uppercase tracking-[0.18em] text-[#8a6b68]">{product.category?.name}</p>
+        <h3 className="mt-2 text-xl font-semibold text-[#201b1a]">{product.name}</h3>
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <p className="text-lg font-semibold text-[#201b1a]">{formatNaira(product.price)}</p>
+          <span className="rounded-full bg-[#f7e7e6] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#5d453f]">
+            {product.stock > 0 ? 'In stock' : 'Sold out'}
+          </span>
         </div>
       </div>
-      <div className="border-t border-[#f0e5e2] py-5 text-center text-sm text-[#665554]">© 2025 D UNDERTHINGS. All rights reserved.</div>
-    </footer>
+    </Link>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

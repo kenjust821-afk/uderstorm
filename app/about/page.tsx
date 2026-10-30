@@ -1,10 +1,7 @@
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
-import db, { getCategories, getSettings } from '@/lib/db';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
-import { formatNaira } from '@/lib/format';
+import { getSettings } from '@/lib/db';
 
 export default async function AboutPage() {
   const settings = await getSettings();
@@ -55,30 +52,3 @@ export default async function AboutPage() {
     </>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

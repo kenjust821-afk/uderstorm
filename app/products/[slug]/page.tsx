@@ -1,9 +1,9 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import db, { getProductBySlug, getProducts, getSettings } from '@/lib/db';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
+import { db, getProductBySlug } from '@/lib/db';
 import { formatNaira } from '@/lib/format';
 
 export default async function ProductDetailPage({ params }: { params: { slug: string } }) {
@@ -16,9 +16,9 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
     take: 4,
   });
 
-  const images = Array.isArray(product.images) ? product.images : JSON.parse(product.images || '[]');
-  const sizes = Array.isArray(product.sizes) ? product.sizes : JSON.parse(product.sizes || '[]');
-  const colors = Array.isArray(product.colors) ? product.colors : JSON.parse(product.colors || '[]');
+  const images = product.images || [];
+  const sizes = product.sizes || [];
+  const colors = product.colors || [];
 
   return (
     <>
@@ -110,204 +110,3 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
     </>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

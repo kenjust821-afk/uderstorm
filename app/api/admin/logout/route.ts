@@ -5,30 +5,3 @@ export async function POST(req: NextRequest) {
   response.cookies.set('dunderthings_admin', '', { maxAge: 0, path: '/' });
   return response;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

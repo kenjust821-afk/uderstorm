@@ -1,55 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-import db, { getCategories, getSettings } from '@/lib/db';
-import { verifySessionRequest } from '@/lib/auth';
+import { db } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
-  const session = verifySessionRequest(req);
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
   const body = await req.json();
-  const slug = body.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  const category = await db.category.findUnique({ where: { slug: body.category } });
-  if (!category) return NextResponse.json({ error: 'Category not found' }, { status: 400 });
+  const reference = `DU-${Date.now()}`;
+  const items = Array.isArray(body.items) ? body.items : [];
+  const total = items.reduce((sum: number, item: any) => sum + Number(item.price) * Number(item.quantity), 0) + 3500;
 
-  const product = await db.product.create({
+  const order = await db.order.create({
     data: {
-      name: body.name,
-      slug,
-      description: body.description,
-      price: Number(body.price),
-      categoryId: category.id,
-      images: JSON.stringify(body.images || []),
-      sizes: JSON.stringify(body.sizes || []),
-      colors: JSON.stringify(body.colors || []),
-      stock: Number(body.stock || 0),
-      featured: Boolean(body.featured),
-      newArrival: Boolean(body.newArrival),
-      bestSeller: Boolean(body.bestSeller),
-      soldOut: Number(body.stock || 0) <= 0,
-      active: true,
-      rating: 4.8,
-      reviewCount: 0,
+      reference,
+      customerName: body.customerName,
+      phone: body.phone,
+      whatsapp: body.whatsapp || body.phone,
+      email: body.email || null,
+      address: body.address,
+      state: body.state,
+      city: body.city,
+      items: JSON.stringify(items),
+      total,
+      status: 'New Order',
     },
-    include: { category: true },
   });
 
-  return NextResponse.json({ product });
+  const message = encodeURIComponent(
+    `New D UNDERTHINGS order\nReference: ${order.reference}\nCustomer: ${body.customerName}\nPhone: ${body.phone}\nWhatsApp: ${body.whatsapp || body.phone}\nAddress: ${body.address}, ${body.city}, ${body.state}\nItems:\n${items.map((item: any) => `- ${item.name} (${item.size}/${item.color}) x${item.quantity} = ₦${Number(item.price) * Number(item.quantity)}`).join('\n')}\nTotal: ₦${total}`
+  );
+
+  return NextResponse.json({ ok: true, order, whatsappUrl: `https://wa.me/2348123456789?text=${message}` });
 }
-
-export async function GET(req: NextRequest) {
-  const session = verifySessionRequest(req);
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const products = await db.product.findMany({ include: { category: true }, orderBy: { createdAt: 'desc' } });
-  return NextResponse.json(products);
-}
-
-
-
-
-
-
-
-
-
-
-

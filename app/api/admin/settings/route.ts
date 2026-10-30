@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const settings = await db.setting.findMany({ orderBy: { key: 'asc' } });
-  return NextResponse.json(Object.fromEntries(settings.map((s) => [s.key, s.value])));
+  return NextResponse.json(Object.fromEntries(settings.map((setting) => [setting.key, setting.value])));
 }
 
 export async function PUT(req: NextRequest) {
@@ -15,6 +15,7 @@ export async function PUT(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const payload = await req.json();
+
   for (const [key, value] of Object.entries(payload)) {
     await db.setting.upsert({
       where: { key },
@@ -25,7 +26,3 @@ export async function PUT(req: NextRequest) {
 
   return NextResponse.json({ ok: true });
 }
-
-
-
-
